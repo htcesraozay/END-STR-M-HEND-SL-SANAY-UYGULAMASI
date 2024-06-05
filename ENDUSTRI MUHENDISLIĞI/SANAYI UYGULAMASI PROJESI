@@ -1,0 +1,330 @@
+Sub Düğme1_Tıkla()
+UserForm1.Show
+End Sub
+
+Private Sub ComboBox1_Change()
+
+    Dim ws As Worksheet
+    Dim machineNumber As String
+    Dim lastRow As Long
+    Dim I As Long
+    
+    ' Seçilen makine numarasını alın
+    machineNumber = ComboBox1.Value
+    
+    ' Sayfa seçimi
+    Select Case machineNumber
+        Case "74"
+            Set ws = ThisWorkbook.Sheets("74")
+        Case "213"
+            Set ws = ThisWorkbook.Sheets("213")
+        Case "164"
+            Set ws = ThisWorkbook.Sheets("164")
+        Case "219"
+            Set ws = ThisWorkbook.Sheets("219")
+    End Select
+    
+    ' ComboBox2'yi temizle
+    ComboBox2.Clear
+    
+    ' İlgili sayfanın B sütunundaki tarihleri ComboBox2'ye ekleyin
+    lastRow = ws.Cells(ws.Rows.Count, "B").End(xlUp).Row
+    For I = 2 To lastRow ' 2. satırdan başlıyoruz çünkü 1. satırda başlık olabilir
+        ComboBox2.AddItem Format(ws.Cells(I, "B").Value, "dd.mm.yyyy")
+    Next I
+
+    
+
+
+End Sub
+
+
+Private Sub ComboBox2_Change()
+
+    Dim ws As Worksheet
+    Dim machineNumber As String
+    Dim selectedDate As String
+    Dim rowIndex As Long
+    Dim cell As Range
+    
+    ' Seçilen makine numarası ve tarihi alın
+    machineNumber = ComboBox1.Value
+    
+    ' Gün/ay/yıl formatında tarihi ay/gün/yıl formatına dönüştür
+    selectedDate = Format(ComboBox2.Value, "dd/mm/yyyy")
+    
+    ' Sayfa seçimi
+    Select Case machineNumber
+        Case "74"
+            Set ws = ThisWorkbook.Sheets("74")
+        Case "213"
+            Set ws = ThisWorkbook.Sheets("213")
+        Case "164"
+            Set ws = ThisWorkbook.Sheets("164")
+        Case "219"
+            Set ws = ThisWorkbook.Sheets("219")
+    End Select
+    
+    ' Tarihe göre satır indeksini bulun
+    rowIndex = -1
+    For Each cell In ws.Columns("B").Cells
+        If Format(cell.Value, "dd/mm/yyyy") = selectedDate Then
+            rowIndex = cell.Row
+            Exit For
+        End If
+    Next cell
+    
+    If rowIndex = -1 Then
+        MsgBox "Seçilen tarih bulunamadı.", vbExclamation
+        Exit Sub
+    End If
+    
+    ' Hücre değerlerini alın
+    Dim C As Double, D As Double, E As Double, G As Double, H As Double, I As Double
+    Dim K As Double, L As Double, M As Double, O As Double, P As Double, Q As Double
+    Dim S As Double, T As Double
+    
+    
+    If IsNumeric(ws.Cells(rowIndex, "C").Value) Then
+    C = ws.Cells(rowIndex, "C").Value
+    
+    D = ws.Cells(rowIndex, "D").Value
+    E = ws.Cells(rowIndex, "E").Value
+    G = ws.Cells(rowIndex, "G").Value
+    H = ws.Cells(rowIndex, "H").Value
+    I = ws.Cells(rowIndex, "I").Value
+    K = ws.Cells(rowIndex, "K").Value
+    L = ws.Cells(rowIndex, "L").Value
+    M = ws.Cells(rowIndex, "M").Value
+    O = ws.Cells(rowIndex, "O").Value
+    P = ws.Cells(rowIndex, "P").Value
+    Q = ws.Cells(rowIndex, "Q").Value
+    S = ws.Cells(rowIndex, "S").Value
+    T = ws.Cells(rowIndex, "T").Value
+    
+    ' Hesaplamalar
+    Dim TextBox1Val As Double, TextBox2Val As Double, TextBox3Val As Double, TextBox4Val As Double
+    
+    If machineNumber = "74" Then
+        TextBox1Val = 100 * ((450 - S) / 450)
+        TextBox2Val = 100 * (T / (450 - S))
+        TextBox3Val = 100 * ((60 * ((D / E) + (H / I) + (L / M) + (P / Q))) / (60 * ((C / E) + (G / I) + (K / M) + (O / Q))))
+        TextBox4Val = (TextBox1Val * TextBox2Val * TextBox3Val) / 10000
+        
+    ElseIf machineNumber = "213" Then
+        TextBox1Val = 100 * ((450 - O) / 450)
+        TextBox2Val = 100 * (P / (450 - O))
+        TextBox3Val = 100 * ((60 * ((D / E) + (H / I) + (L / M))) / (60 * ((C / E) + (G / I) + (K / M))))
+        TextBox4Val = (TextBox1Val * TextBox2Val * TextBox3Val) / 10000
+        
+    ElseIf machineNumber = "164" Then
+        TextBox1Val = 100 * ((450 - O) / 450)
+        TextBox2Val = 100 * (P / (450 - O))
+        TextBox3Val = 100 * ((60 * ((D / E) + (H / I) + (L / M))) / (60 * ((C / E) + (G / I) + (K / M))))
+        TextBox4Val = (TextBox1Val * TextBox2Val * TextBox3Val) / 10000
+        
+    ElseIf machineNumber = "219" Then
+        TextBox1Val = 100 * ((450 - K) / 450)
+        TextBox2Val = 100 * (L / (450 - K))
+        TextBox3Val = 100 * ((60 * ((D / E) + (H / I))) / (60 * ((C / E) + (G / I))))
+        TextBox4Val = (TextBox1Val * TextBox2Val * TextBox3Val) / 10000
+        
+    End If
+    
+    ' Sonuçları formatlayarak TextBox'lara yazdır
+    TextBox1.Value = Format(TextBox1Val, "0.0")
+    TextBox2.Value = Format(TextBox2Val, "0.0")
+    TextBox3.Value = Format(TextBox3Val, "0.0")
+    TextBox4.Value = Format(TextBox4Val, "0.0")
+End If
+End Sub
+
+Private Sub CommandButton1_Click()
+
+    Dim ws As Worksheet
+    Set ws = ThisWorkbook.Sheets("kayıt")
+    
+    ' Son satırı bulun
+    Dim lastRow As Long
+    lastRow = ws.Cells(ws.Rows.Count, 1).End(xlUp).Row + 1
+    
+    ' Değerleri Sayfa5'e yazın
+    ws.Cells(lastRow, 1).Value = ComboBox1.Value
+    ws.Cells(lastRow, 2).Value = ComboBox2.Value
+    ws.Cells(lastRow, 3).Value = TextBox1.Value
+    ws.Cells(lastRow, 4).Value = TextBox2.Value
+    ws.Cells(lastRow, 5).Value = TextBox3.Value
+    ws.Cells(lastRow, 6).Value = TextBox4.Value
+    
+    ' Kullanıcıya kaydedildiğini bildir
+    MsgBox "Veriler başarıyla kaydedildi.", vbInformation
+
+End Sub
+
+Private Sub Label1_Click()
+
+End Sub
+
+Private Sub Label4_Click()
+
+End Sub
+
+Private Sub UserForm_Initialize()
+    ' Makine numaralarını ComboBox1'e ekleyin
+    With ComboBox1
+        .AddItem "74"
+        .AddItem "213"
+        .AddItem "164"
+        .AddItem "219"
+    End With
+
+End Sub
+
+
+Private Sub ComboBox1_Change()
+
+    Dim ws As Worksheet
+    Dim machineNumber As String
+    Dim lastRow As Long
+    Dim I As Long
+    
+    ' Seçilen makine numarasını alın
+    machineNumber = ComboBox1.Value
+    
+    ' Sayfa seçimi
+    Select Case machineNumber
+        Case "74"
+            Set ws = ThisWorkbook.Sheets("74")
+        Case "213"
+            Set ws = ThisWorkbook.Sheets("213")
+        Case "164"
+            Set ws = ThisWorkbook.Sheets("164")
+        Case "219"
+            Set ws = ThisWorkbook.Sheets("219")
+    End Select
+    
+    ' ComboBox2'yi temizle
+    ComboBox2.Clear
+    
+    ' İlgili sayfanın B sütunundaki tarihleri ComboBox2'ye ekleyin
+    lastRow = ws.Cells(ws.Rows.Count, "B").End(xlUp).Row
+    For I = 2 To lastRow ' 2. satırdan başlıyoruz çünkü 1. satırda başlık olabilir
+        ComboBox2.AddItem Format(ws.Cells(I, "B").Value, "dd.mm.yyyy")
+    Next I
+
+    
+
+
+End Sub
+
+
+Private Sub ComboBox2_Change()
+
+    Dim ws As Worksheet
+    Dim machineNumber As String
+    Dim selectedDate As String
+    Dim rowIndex As Long
+    Dim cell As Range
+    
+    ' Seçilen makine numarası ve tarihi alın
+    machineNumber = ComboBox1.Value
+    
+    ' Gün/ay/yıl formatında tarihi ay/gün/yıl formatına dönüştür
+    selectedDate = Format(ComboBox2.Value, "dd/mm/yyyy")
+    
+    ' Sayfa seçimi
+    Select Case machineNumber
+        Case "74"
+            Set ws = ThisWorkbook.Sheets("74")
+        Case "213"
+            Set ws = ThisWorkbook.Sheets("213")
+        Case "164"
+            Set ws = ThisWorkbook.Sheets("164")
+        Case "219"
+            Set ws = ThisWorkbook.Sheets("219")
+    End Select
+    
+    ' Tarihe göre satır indeksini bulun
+    rowIndex = -1
+    For Each cell In ws.Columns("B").Cells
+        If Format(cell.Value, "dd/mm/yyyy") = selectedDate Then
+            rowIndex = cell.Row
+            Exit For
+        End If
+    Next cell
+    
+    If rowIndex = -1 Then
+        MsgBox "Seçilen tarih bulunamadı.", vbExclamation
+        Exit Sub
+    End If
+    
+    ' Hücre değerlerini alın
+    Dim C As Double, D As Double, E As Double, G As Double, H As Double, I As Double
+    Dim K As Double, L As Double, M As Double, O As Double, P As Double, Q As Double
+    Dim S As Double, T As Double
+    
+    
+    If IsNumeric(ws.Cells(rowIndex, "C").Value) Then
+    C = ws.Cells(rowIndex, "C").Value
+    
+    D = ws.Cells(rowIndex, "D").Value
+    E = ws.Cells(rowIndex, "E").Value
+    G = ws.Cells(rowIndex, "G").Value
+    H = ws.Cells(rowIndex, "H").Value
+    I = ws.Cells(rowIndex, "I").Value
+    K = ws.Cells(rowIndex, "K").Value
+    L = ws.Cells(rowIndex, "L").Value
+    M = ws.Cells(rowIndex, "M").Value
+    O = ws.Cells(rowIndex, "O").Value
+    P = ws.Cells(rowIndex, "P").Value
+    Q = ws.Cells(rowIndex, "Q").Value
+    S = ws.Cells(rowIndex, "S").Value
+    T = ws.Cells(rowIndex, "T").Value
+    
+    ' Hesaplamalar
+    Dim TextBox1Val As Double, TextBox2Val As Double, TextBox3Val As Double, TextBox4Val As Double
+    
+    If machineNumber = "74" Then
+        TextBox1Val = 100 * ((450 - S) / 450)
+        TextBox2Val = 100 * (T / (450 - S))
+        TextBox3Val = 100 * ((60 * ((D / E) + (H / I) + (L / M) + (P / Q))) / (60 * ((C / E) + (G / I) + (K / M) + (O / Q))))
+        TextBox4Val = (TextBox1Val * TextBox2Val * TextBox3Val) / 10000
+        
+    ElseIf machineNumber = "213" Then
+        TextBox1Val = 100 * ((450 - O) / 450)
+        TextBox2Val = 100 * (P / (450 - O))
+        TextBox3Val = 100 * ((60 * ((D / E) + (H / I) + (L / M))) / (60 * ((C / E) + (G / I) + (K / M))))
+        TextBox4Val = (TextBox1Val * TextBox2Val * TextBox3Val) / 10000
+        
+    ElseIf machineNumber = "164" Then
+        TextBox1Val = 100 * ((450 - O) / 450)
+        TextBox2Val = 100 * (P / (450 - O))
+        TextBox3Val = 100 * ((60 * ((D / E) + (H / I) + (L / M))) / (60 * ((C / E) + (G / I) + (K / M))))
+        TextBox4Val = (TextBox1Val * TextBox2Val * TextBox3Val) / 10000
+        
+    ElseIf machineNumber = "219" Then
+        TextBox1Val = 100 * ((450 - K) / 450)
+        TextBox2Val = 100 * (L / (450 - K))
+        TextBox3Val = 100 * ((60 * ((D / E) + (H / I))) / (60 * ((C / E) + (G / I))))
+        TextBox4Val = (TextBox1Val * TextBox2Val * TextBox3Val) / 10000
+        
+    End If
+    
+    ' Sonuçları formatlayarak TextBox'lara yazdır
+    TextBox1.Value = Format(TextBox1Val, "0.0")
+    TextBox2.Value = Format(TextBox2Val, "0.0")
+    TextBox3.Value = Format(TextBox3Val, "0.0")
+    TextBox4.Value = Format(TextBox4Val, "0.0")
+End If
+End Sub
+
+
+
+
+
+
+       
+
+  
+    
+
